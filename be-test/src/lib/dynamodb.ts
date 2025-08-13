@@ -1,25 +1,25 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
-const DEFAULT_PARAMS = {
-    region: process.env.AWS_REGION || 'ap-southeast-2',
-};
-
 const isTest = (process.env.NODE_ENV || '').toLowerCase() === 'test';
 
-const testConfig = {
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY || 'fake_key',
-        secretAccessKey: process.env.AWS_SECRET_KEY || 'secret_key',
-    },
-    endpoint: 'http://localhost:8000',
-    region: process.env.AWS_REGION || 'local',
-    sslEnabled: false,
+// Environment-aware configuration using only specified environment variables
+const getConfig = () => {
+    const region = process.env.AWS_REGION || 'us-east-1';
+    const accessKeyId = process.env.AWS_ACCESS_KEY || 'fakeaccesskey123';
+    const secretAccessKey = process.env.AWS_SECRET_KEY || 'fakesecretkey456';
+    const endpoint = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000';
+
+    return {
+        region,
+        credentials: {
+            accessKeyId,
+            secretAccessKey,
+        },
+        endpoint,
+        sslEnabled: false,
+    };
 };
 
-export const DynamoDB = new DynamoDBClient({
-    ...DEFAULT_PARAMS,
-    ...(isTest && testConfig),
-});
-
+export const DynamoDB = new DynamoDBClient(getConfig());
 export const DocumentClient = DynamoDBDocumentClient.from(DynamoDB);
